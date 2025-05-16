@@ -1,5 +1,8 @@
 use std::path::PathBuf;
 
+#[cfg(feature = "accelerate")]
+extern crate accelerate_src;
+
 use anyhow::{Error as E, Result};
 use candle_core::{
     utils::{cuda_is_available, metal_is_available},

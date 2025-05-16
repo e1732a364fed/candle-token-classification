@@ -11,6 +11,7 @@ repository.workspace = true
 default = []
 metal = ["candle-core/metal", "candle-nn/metal"]
 
+
 [dependencies]
 candle-core.workspace = true
 candle-nn.workspace = true
@@ -33,6 +34,6 @@ repository = "https://github.com/e1732a364fed/candle-token-classification"
 candle-core = "0.9.1"
 candle-nn = "0.9.1"
 candle-transformers = "0.9.1"
-serde = "1.0"
-serde_json = "1.0"
-tokenizers = "0.20"
+serde = "1"
+serde_json = "1"
+tokenizers = "0.21.1"
