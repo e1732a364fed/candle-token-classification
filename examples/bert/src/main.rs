@@ -39,6 +39,9 @@ struct Args {
     /// Use the pytorch weights rather than the safetensors ones
     #[arg(long)]
     use_pth: bool,
+
+    #[arg(long, default_value = "<body>porn</body>")]
+    input: String,
 }
 
 pub fn device(cpu: bool) -> Result<Device> {
@@ -128,9 +131,9 @@ fn main() -> Result<()> {
     };
 
     let (model, tokenizer, labels) = args.build_model_and_tokenizer()?;
-    let sentence = "<body>porn</body>";
+    let sentence = &args.input;
 
-    println!("classify...");
+    println!("classify {sentence} ...");
     let output = model.classify(sentence, &tokenizer, &model.device)?;
     println!("{:?}, {}", labels[output.0 as usize], output.1.to_string());
 
