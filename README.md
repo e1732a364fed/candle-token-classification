@@ -6,7 +6,7 @@ This project provides support for using pre-trained token classification models 
 
 ```rust
 use candle_token_classification::BertLikeTokenClassificationHead; // Import the token classifier trait from this library
-use candle_token_classification::BertTokenClassificationHead; // Import the concrete classifier (BERT & ELECTRA are provided)
+use candle_token_classification::BertTokenClassificationHead; // Import the concrete classifier (BERT are provided)
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ... retrieve Config, VarBuilder & Tokenizer from filesystem, HF hub, etc
@@ -18,7 +18,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let output = classifier.classify( // classify some text (or use `classifier.forward` to get the output tensor)
         "This is the text we'd like to classify.",
-        &labels,
         &tokenizer,
         &classifier.device
     );
@@ -31,4 +30,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Contributing
 
-This repo was made specifically for my use-case of UPOS tagging with pre-trained models. As such it is likely missing things required to support work outside that scope. If you need other functionality, contributions are welcome :)
+If you need other functionality, contributions are welcome :)
