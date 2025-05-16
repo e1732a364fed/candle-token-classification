@@ -1,13 +1,12 @@
 use anyhow::{Error as E, Result};
 use candle_core::{
     utils::{cuda_is_available, metal_is_available},
-    Device, Tensor,
+    Device,
 };
 use candle_nn::VarBuilder;
 use candle_transformers::models::bert::DTYPE;
 use clap::Parser;
 use hf_hub::{api::sync::Api, Repo, RepoType};
-use itertools::Itertools;
 use tokenizers::Tokenizer;
 
 use candle_token_classification::{
@@ -32,21 +31,9 @@ struct Args {
     #[arg(long)]
     revision: Option<String>,
 
-    /// When set, compute embeddings for this prompt.
-    #[arg(long)]
-    prompt: Option<String>,
-
     /// Use the pytorch weights rather than the safetensors ones
-    #[arg(long, default_value = "true")]
+    #[arg(long)]
     use_pth: bool,
-
-    /// The number of times to run the prompt.
-    #[arg(long, default_value = "1")]
-    n: usize,
-
-    /// L2 normalization for embeddings.
-    #[arg(long, default_value = "true")]
-    normalize_embeddings: bool,
 }
 
 pub fn device(cpu: bool) -> Result<Device> {
@@ -134,8 +121,4 @@ fn main() -> Result<()> {
     println!("{:?}", outputs);
 
     Ok(())
-}
-
-pub fn normalize_l2(v: &Tensor) -> Result<Tensor> {
-    Ok(v.broadcast_div(&v.sqr()?.sum_keepdim(1)?.sqrt()?)?)
 }
