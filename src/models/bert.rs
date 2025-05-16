@@ -21,8 +21,13 @@ impl BertLikeModel for BertModel {
         &self.device
     }
 
-    fn forward(&self, input_ids: &Tensor, token_type_ids: &Tensor) -> Result<Tensor> {
-        BertModel::forward(&self, input_ids, token_type_ids)
+    fn forward(
+        &self,
+        input_ids: &Tensor,
+        token_type_ids: &Tensor,
+        attention_mask: Option<&Tensor>,
+    ) -> Result<Tensor> {
+        BertModel::forward(&self, input_ids, token_type_ids, attention_mask)
     }
 }
 

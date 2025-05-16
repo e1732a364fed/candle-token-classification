@@ -9,7 +9,12 @@ pub trait BertLikeModel: Sized {
 
     fn load<'a>(vb: VarBuilder, config: &Self::Config<'a>) -> Result<Self>;
     fn device(&self) -> &Device;
-    fn forward(&self, input_ids: &Tensor, token_type_ids: &Tensor) -> Result<Tensor>;
+    fn forward(
+        &self,
+        input_ids: &Tensor,
+        token_type_ids: &Tensor,
+        attention_mask: Option<&Tensor>,
+    ) -> Result<Tensor>;
 }
 
 pub trait BertLikeTokenClassificationHead: Sized {
@@ -46,8 +51,15 @@ pub trait BertLikeTokenClassificationHead: Sized {
         ))
     }
 
-    fn forward(&self, input_ids: &Tensor, token_type_ids: &Tensor) -> Result<Tensor> {
-        let outputs = self.model().forward(input_ids, token_type_ids)?;
+    fn forward(
+        &self,
+        input_ids: &Tensor,
+        token_type_ids: &Tensor,
+        attention_mask: Option<&Tensor>,
+    ) -> Result<Tensor> {
+        let outputs = self
+            .model()
+            .forward(input_ids, token_type_ids, attention_mask)?;
         use candle_core::IndexOp;
 
         let first_token_tensor = outputs.i((.., 0))?;
@@ -83,9 +95,17 @@ pub trait BertLikeTokenClassificationHead: Sized {
         let tokens = token_encoding.get_ids().to_vec();
         let input = Tensor::new(tokens.as_slice(), device)?.unsqueeze(0)?; //vec转 tensor 后, 再加一维度
         let token_type_ids = input.zeros_like()?;
-        let logits = self.forward(&input, &token_type_ids)?.squeeze(0)?;
+
+        let attention_mask = Tensor::new(
+            token_encoding.get_attention_mask().to_vec().as_slice(),
+            device,
+        )?
+        .unsqueeze(0)?;
+
+        let logits = self
+            .forward(&input, &token_type_ids, Some(&attention_mask))?
+            .squeeze(0)?;
         let scores = softmax_last_dim(&logits)?;
-        // println!("scores {scores:?} {}", scores.to_string());
 
         let label_indices = scores.argmax(0)?;
         let v = label_indices.to_vec0::<u32>()?;
