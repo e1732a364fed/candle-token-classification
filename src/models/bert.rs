@@ -31,6 +31,7 @@ pub struct TokenClassificationHead {
     dropout: Dropout,
     classifier: Linear,
     pub device: Device,
+    pooler_dense: Linear,
 }
 
 impl BertLikeTokenClassificationHead for TokenClassificationHead {
@@ -41,12 +42,14 @@ impl BertLikeTokenClassificationHead for TokenClassificationHead {
         model: Self::Model,
         dropout: Dropout,
         classifier: Linear,
+        pooler_dense: Linear,
     ) -> Self {
         Self {
             model,
             dropout,
             classifier,
             device,
+            pooler_dense,
         }
     }
 
@@ -60,5 +63,9 @@ impl BertLikeTokenClassificationHead for TokenClassificationHead {
 
     fn classifier(&self) -> &Linear {
         &self.classifier
+    }
+
+    fn pooler_dense(&self) -> &Linear {
+        &self.pooler_dense
     }
 }

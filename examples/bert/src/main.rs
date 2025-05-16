@@ -117,8 +117,8 @@ fn main() -> Result<()> {
     let (model, tokenizer, labels) = args.build_model_and_tokenizer()?;
     let sentence = "Hai cái đầu thì tốt hơn một.";
 
-    let outputs = model.classify(sentence, &labels, &tokenizer, &model.device)?;
-    println!("{:?}", outputs);
+    let output = model.classify(sentence, &tokenizer, &model.device)?;
+    println!("{:?}", labels[output as usize]);
 
     Ok(())
 }
