@@ -4,8 +4,6 @@ mod traits;
 
 pub use config::Config;
 pub use models::bert::TokenClassificationHead as BertTokenClassificationHead;
-#[cfg(feature = "electra")]
-pub use models::electra::TokenClassificationHead as ElectraTokenClassificationHead;
 pub use traits::{BertLikeModel, BertLikeTokenClassificationHead};
 
 #[derive(Clone, Debug)]

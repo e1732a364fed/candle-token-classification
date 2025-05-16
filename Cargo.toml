@@ -9,11 +9,11 @@ repository.workspace = true
 
 [features]
 default = []
-electra = ["candle-electra"]
+# electra = ["candle-electra"]
 
 [dependencies]
 candle-core.workspace = true
-candle-electra = { git = "https://github.com/nicksenger/candle-electra.git", optional = true }
+# candle-electra = { git = "https://github.com/nicksenger/candle-electra.git", optional = true }
 candle-nn.workspace = true
 candle-transformers.workspace = true
 tokenizers.workspace = true
@@ -21,16 +21,14 @@ serde.workspace = true
 serde_json.workspace = true
 
 [workspace]
-members = [
-    "examples/*",
-]
+members = ["examples/*"]
 
 [workspace.package]
 version = "0.1.0"
-authors = ["Nick Senger <dev@nsenger.com>"]
+authors = ["Nick Senger <dev@nsenger.com>", "e1732a364fed"]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/nicksenger/candle-token-classification"
+repository = "https://github.com/e1732a364fed/candle-token-classification"
 
 [workspace.dependencies]
 candle-core = "0.3"
