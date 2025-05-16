@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::{Error as E, Result};
 use candle_core::{
     utils::{cuda_is_available, metal_is_available},
@@ -26,7 +28,7 @@ struct Args {
 
     /// The model to use, check out available models: https://huggingface.co/models?library=sentence-transformers&sort=trending
     #[arg(long)]
-    model_id: Option<String>,
+    model: Option<String>,
 
     #[arg(long)]
     revision: Option<String>,
@@ -63,27 +65,35 @@ impl Args {
         &self,
     ) -> Result<(BertTokenClassificationHead, Tokenizer, Vec<String>)> {
         let device = device(self.cpu)?;
-        let default_model = "KoichiYasuoka/bert-base-vietnamese-upos".to_string();
+        let default_model = "google-bert/bert-base-multilingual-cased".to_string();
         let default_revision = "main".to_string();
-        let (model_id, revision) = match (self.model_id.to_owned(), self.revision.to_owned()) {
+        let (model_id, revision) = match (self.model.to_owned(), self.revision.to_owned()) {
             (Some(model_id), Some(revision)) => (model_id, revision),
             (Some(model_id), None) => (model_id, "main".to_string()),
             (None, Some(revision)) => (default_model, revision),
             (None, None) => (default_model, default_revision),
         };
 
-        let repo = Repo::with_revision(model_id, RepoType::Model, revision);
+        let repo = Repo::with_revision(model_id.clone(), RepoType::Model, revision);
         let (config_filename, tokenizer_filename, weights_filename) = {
-            let api = Api::new()?;
-            let api = api.repo(repo);
-            let config = api.get("config.json")?;
-            let tokenizer = api.get("tokenizer.json")?;
-            let weights = if self.use_pth {
-                api.get("pytorch_model.bin")?
+            if model_id.starts_with("/") {
+                (
+                    PathBuf::from(model_id.clone() + "/config.json"),
+                    PathBuf::from(model_id.clone() + "/tokenizer.json"),
+                    PathBuf::from(model_id + "/model.safetensors"),
+                )
             } else {
-                api.get("model.safetensors")?
-            };
-            (config, tokenizer, weights)
+                let api = Api::new()?;
+                let api = api.repo(repo);
+                let config = api.get("config.json")?;
+                let tokenizer = api.get("tokenizer.json")?;
+                let weights = if self.use_pth {
+                    api.get("pytorch_model.bin")?
+                } else {
+                    api.get("model.safetensors")?
+                };
+                (config, tokenizer, weights)
+            }
         };
         let config = std::fs::read_to_string(config_filename)?;
         let config: Config = serde_json::from_str(&config)?;
@@ -115,10 +125,11 @@ fn main() -> Result<()> {
     };
 
     let (model, tokenizer, labels) = args.build_model_and_tokenizer()?;
-    let sentence = "Hai cái đầu thì tốt hơn một.";
+    let sentence = "<body>porn</body>";
 
+    println!("classify...");
     let output = model.classify(sentence, &tokenizer, &model.device)?;
-    println!("{:?}", labels[output as usize]);
+    println!("{:?}, {}", labels[output.0 as usize], output.1.to_string());
 
     Ok(())
 }

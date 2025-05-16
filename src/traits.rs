@@ -63,10 +63,9 @@ pub trait BertLikeTokenClassificationHead: Sized {
     fn classify<'a>(
         &self,
         s: &'a str,
-        // labels: &[String],
         tokenizer: &Tokenizer,
         device: &Device,
-    ) -> Result<u32> {
+    ) -> Result<(u32, Tensor)> {
         let Ok(mut token_encoding) = tokenizer.encode(s, true) else {
             return Err(E::Msg("encoding".to_string()));
         };
@@ -90,6 +89,6 @@ pub trait BertLikeTokenClassificationHead: Sized {
 
         let label_indices = scores.argmax(0)?;
         let v = label_indices.to_vec0::<u32>()?;
-        Ok(v)
+        Ok((v, scores))
     }
 }
